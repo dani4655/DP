@@ -3,112 +3,49 @@ import numpy as np
 # <=> get the max floors possible with m tries and k balls
 def checking_number(n: int, k: int) -> int:
     min = 0
-    arr = [0] * (k + 1)
-    while arr[k] < n:
+    binom = [0] * (k + 1)
+    for i in range(1, n+1):
+        if binom[k]>=n:
+            break
         min = min + 1
         for x in range(k, 0, -1):
-            arr[x] = 1 + arr[x] + arr[x - 1]
+            binom[x] = 1 + binom[x] + binom[x - 1] #the recursive formula from the pdf
     return min
 
+
+#q2 find the first floor which the ball will break at using optimal search algorithm
 def index_floor(f_i: list[int], b: int) -> int:
     n = len(f_i)
-    first = index_first_floor(n)
+    up = index_first_floor(n) - 1
+    down = 0
     k = 2
+    step = up
+    if not breaks(f_i[n-1], b):
+        return -1
+    while k>0:
+        if breaks(f_i[up], b):
+            k-=1
+            for i in range(down,up+1):
+                if breaks(f_i[i], b):
+                    return i+1
+        else:
+            down = up
+            step = step -1
+            if step == 0:
+                step = 1
+            up = up + step
 
 
-# def index_floor(f_i: list[int], b: int) -> int:
-#     floors = len(f_i)
-#     start = index_first_floor(floors)
-#     step = start -1
-#     k = 2
-#     interval = [0,floors]
-#     while k>0:
-#         if f_i[start-1]> b: #ball broke
-#             k=k-1
-#             interval[1] = start
-#             if interval[1]==interval[0]:
-#                 if f_i[interval[0]-1]>b:
-#                     return interval[0]
-#             for i in range(interval[0],interval[1]):
-#                 if f_i[i]>b:
-#                     return i+1
-#         elif f_i[start-1]<= b: #ball did not break
-#             start += step
-#             step = step -1
-#             interval[0] = start
-#             if step==0:
-#                 if f_i[0]>b or f_i[floors-1]<=b:
-#                     return -1
-#
-#     return -1
 
-# def index_floor(f_i: list[int], b: int) -> int:
-#     """
-#     This function finds the highest floor from which you can drop a ball without it breaking
-#     in a building with n floors (f_i) considering a threshold (b) for the balls to break,
-#     using an optimal strategy with 2 balls.
-#
-#     Args:
-#         f_i: List of floor heights (increasing order).
-#         b: Threshold for the balls to break (ball breaks if f_i < b).
-#
-#     Returns:
-#         The index of the highest safe floor (0-based indexing) or -1 if no safe floor exists.
-#     """
-#
-#     floors = len(f_i)
-#     start = index_first_floor(floors)  # Replace with function calculating optimal starting floor
-#     step = start - 1
-#     k = 2
-#     interval = [0, floors]
-#     if f_i[floors-1] <= b:
-#         return -1
-#     while k > 0:
-#         if f_i[start - 1] > b:  # Ball breaks
-#             k -= 1
-#             interval[1] = start
-#             if interval[0] == interval[1]:
-#                 if f_i[interval[0] - 1] > b:
-#                     return interval[0]
-#             for i in range(interval[0], interval[1]):
-#                 if f_i[i] > b:
-#                     return i + 1
-#
-#         elif f_i[start - 1] <= b:  # Ball doesn't break
-#             start += step
-#             step = max(step - 1, 0)  # Ensure step doesn't become negative
-#             interval[0] = start
-#             if step == 0 and (f_i[0] > b or f_i[floors - 1] <= b):
-#                 return -1
-#
-#     return -1
+def breaks(n :int, b: int):
+    if b < n:
+        return True
+    return False
 
-# def index_floor(f_i: list[int], b: int) -> int:
-#     num =1
-#     floors_number = len(f_i)
-#     if f_i[floors_number-1] <= b or f_i[0]>= b:
-#         return -1
-#     while num*(num+1)/2 < floors_number:
-#         num += 1
-#     jump = num
-#     step = num -1
-#     while f_i[jump] < b:
-#         jump = jump + step
-#         step = step - 1
-#     floor = jump - step + 1
-#     while f_i[floor] < b:
-#         floor +=1
-#         if b==f_i[floor]:
-#             floor +=1
-#
-#     return floor +1
-#
-
+#q3 find the first floor to start looking with the optimal algorithm
 def index_first_floor(n: int) -> int:
-    a,b = np.roots([1,1,-2*n])
-    ans = max(a,b)
+    a, b = np.roots([1, 1, -2*n])
+    ans = max(a, b)
     return int(np.ceil(ans))
 
 
-floors1 =[1,2,3,4,5,6,7,8,9,10]
-index_floor(floors1,9)
